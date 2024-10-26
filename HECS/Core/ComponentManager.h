@@ -32,30 +32,17 @@ namespace Hori
 			return nullptr;
 		}
 
-		template <typename T>
-		void RemoveComponent(Entity entity)
+		template<typename T>
+		std::vector<std::shared_ptr<T>> GetCompoentsOfType()
 		{
-			auto& compMap = components[std::type_index(typeid(T))];
-			auto it = compMap.find(entity);
-			if (it != compMap.end())
+			std::vector<std::shred_ptr> comps;
+			for (auto& [id, comp] : m_components[std::type_index(typeid(T))])
 			{
-				delete it->second;  // Delete the component
-				compMap.erase(it);  // Remove from the map
-			}
-		}
-
-		~ComponentManager()
-		{
-			for (auto& [type, compMap] : components)
-			{
-				for (auto& [entity, comp] : compMap)
-				{
-					delete comp;
-				}
+				comps.push_back(comp);
 			}
 		}
 
 	private:
-		std::unordered_map<std::type_index, std::unordered_map<int, void*>> m_components;
+		std::unordered_map<std::type_index, std::unordered_map<int, std::shared_ptr<T>>> m_components;
 	};
 }
