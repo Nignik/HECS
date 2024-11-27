@@ -5,7 +5,9 @@
 #include <type_traits>
 #include <memory>
 #include <typeindex>
+#include <unordered_set>
 
+#include "ComponentArray.h"
 #include "Entity.h"
 #include "System.h"
 
@@ -26,44 +28,53 @@ namespace Hori
 		Entity CreateEntity()
 		{
 			Entity entity(m_nextEntityID++);
-			m_entities.push_back(entity);
+			m_entities.insert(entity.GetID());
 			return entity;
 		}
 
 		template<typename T>
-		void AddComponent(Entity entity, std::shared_ptr<T> component)
+		void AddComponent(Entity entity, T component)
 		{
-			const std::type_index type = std::type_index(typeid(T));
-			m_components[type][entity.GetID()] = component;
+			GetComponentArray<T>()->InsertData(entity.GetID(), component);
 		}
 
 		template<typename T>
-		std::shared_ptr<T> GetComponent(Entity entity)
+		T& GetComponent(Entity entity)
 		{
-			const std::type_index type = std::type_index(typeid(T));
-			auto it = m_components[type].find(entity.GetID());
-			if (it != m_components[type].end())
-			{
-				return std::static_pointer_cast<T>(it->second);
-			}
-			return nullptr;
+			return GetComponentArray<T>()->GetData(entity.GetID());
 		}
 
 		template<typename T>
-		std::vector<std::shared_ptr<T>> GetCompoentsOfType()
+		bool HasComponent(int32_t entityID)
 		{
-			std::vector<std::shared_ptr<T>> comps;
-			for (auto& [id, comp] : m_components[std::type_index(typeid(T))])
-			{
-				comps.push_back(comp);
-			}
-
-			return comps;
+			auto arr = GetComponentArray<T>();
+			return arr->HasData(entityID);
 		}
 
-		void AddSystem(std::shared_ptr<System> system)
+		template<typename... Components>
+		std::vector<Entity> GetEntitiesWithComponents()
 		{
-			m_systems.push_back(system);
+			std::vector<Entity> result;
+
+			for (const auto& entityID : m_entities)
+			{
+				if ((HasComponent<Components>(entityID) && ...))
+				{
+					result.emplace_back(Entity(entityID));
+				}
+			}
+
+			return result;
+		}
+
+		template<typename T, typename... Args>
+		T& AddSystem(Args&&... args)
+		{
+			static_assert(std::is_base_of<System, T>::value, "T must inherit from System");
+			auto system = std::make_unique<T>(std::forward<Args>(args)...);
+			T& ref = *system;
+			m_systems.push_back(std::move(system));
+			return ref;
 		}
 
 		void UpdateSystems(float deltaTime)
@@ -78,15 +89,20 @@ namespace Hori
 		World() = default;
 		~World() = default;
 
-		int m_nextEntityID = 0;
-		std::vector<Entity> m_entities;
-		std::vector<std::shared_ptr<System>> m_systems;
-		std::unordered_map<std::type_index, std::unordered_map<int, std::shared_ptr<void>>> m_components;
-
 		template<typename T>
-		void NotifySystems(Entity entity)
+		ComponentArray<T>* GetComponentArray()
 		{
-			
+			std::type_index type = std::type_index(typeid(T));
+			if (m_componentArrays.find(type) == m_componentArrays.end())
+			{
+				m_componentArrays[type] = std::make_shared<ComponentArray<T>>();
+			}
+			return static_cast<ComponentArray<T>*>(m_componentArrays[type].get());
 		}
+
+		int32_t m_nextEntityID = 0;
+		std::unordered_set<int32_t> m_entities;
+		std::unordered_map<std::type_index, std::shared_ptr<IComponentArray>> m_componentArrays;
+		std::vector<std::unique_ptr<System>> m_systems;
 	};
 }

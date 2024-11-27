@@ -6,7 +6,7 @@ namespace Hori
 {
 	class Component
 	{
-		virtual void Create(Resource* resource) = 0;
+	public:
 		virtual ~Component() = default;
 	};
 }

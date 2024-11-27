@@ -10,7 +10,7 @@ namespace Hori
 	class Entity
 	{
 	public:
-		int GetID() const { return m_id; }
+		int32_t GetID() const { return m_id; }
 
 	private:
 		friend class World;
