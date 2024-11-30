@@ -45,7 +45,17 @@ namespace Hori
 		auto retrievedEntities = world.GetEntitiesWithComponents<Position>();
 
 		EXPECT_EQ(retrievedEntities[1].GetID(), entt.GetID());
+	}
 
+	TEST(HECSTest, SingletonComponent)
+	{
+		World& world = World::GetInstance();
+
+		world.AddSingletonComponent(Position(1.5f, 0.5f));
+
+		auto& retrievedComponent = world.GetSingletonComponent<Position>();
+
+		EXPECT_EQ(retrievedComponent.x, 1.5f);
 	}
 
 }

@@ -10,6 +10,7 @@
 #include "ComponentArray.h"
 #include "Entity.h"
 #include "System.h"
+#include "Component.h"
 
 namespace Hori
 {
@@ -22,6 +23,10 @@ namespace Hori
 		static World& GetInstance()
 		{
 			static World instance;
+			
+			if (!instance.m_singletonEntity.has_value())
+				instance.m_singletonEntity = instance.CreateEntity();
+
 			return instance;
 		}
 
@@ -42,6 +47,18 @@ namespace Hori
 		T& GetComponent(Entity entity)
 		{
 			return GetComponentArray<T>()->GetData(entity.GetID());
+		}
+
+		template<typename T>
+		void AddSingletonComponent(T component)
+		{
+			GetInstance().AddComponent(m_singletonEntity.value(), component);
+		}
+
+		template<typename T>
+		T& GetSingletonComponent()
+		{
+			return GetInstance().GetComponent<T>(m_singletonEntity.value());
 		}
 
 		template<typename T>
@@ -104,5 +121,7 @@ namespace Hori
 		std::unordered_set<int32_t> m_entities;
 		std::unordered_map<std::type_index, std::shared_ptr<IComponentArray>> m_componentArrays;
 		std::vector<std::unique_ptr<System>> m_systems;
+
+		std::optional<Entity> m_singletonEntity;
 	};
 }
