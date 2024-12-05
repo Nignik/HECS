@@ -37,16 +37,27 @@ namespace Hori
 			return entity;
 		}
 
+		void RemoveEntity(Entity entity)
+		{
+			int32_t entityID = entity.GetID();
+
+			if (m_entities.find(entityID) == m_entities.end())
+			{
+				return;
+			}
+
+			for (auto& [type, arr] : m_componentArrays)
+			{
+				arr->EntityDestroyed(entityID);
+			}
+
+			m_entities.erase(entityID);
+		}
+
 		template<typename T>
 		void AddComponent(Entity entity, T component)
 		{
 			GetComponentArray<T>()->InsertData(entity.GetID(), component);
-		}
-
-		template<typename T>
-		void DeleteComponent(Entity entity)
-		{
-			GetComponentArray<T>()->RemoveData(entity.GetID(), component);
 		}
 
 		template<typename T>

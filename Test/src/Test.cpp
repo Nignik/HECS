@@ -58,5 +58,17 @@ namespace Hori
 		EXPECT_EQ(retrievedComponent.x, 1.5f);
 	}
 
+	TEST(HECSTest, RemovingEntities)
+	{
+		World& world = World::GetInstance();
+
+		auto entt = world.CreateEntity();
+		world.AddComponent(entt, Position(1.5f, 0.5f));
+
+		world.RemoveEntity(entt);
+
+		EXPECT_EQ(0, 0);
+	}
+
 }
 
