@@ -44,6 +44,12 @@ namespace Hori
 		}
 
 		template<typename T>
+		void DeleteComponent(Entity entity)
+		{
+			GetComponentArray<T>()->RemoveData(entity.GetID(), component);
+		}
+
+		template<typename T>
 		T& GetComponent(Entity entity)
 		{
 			return GetComponentArray<T>()->GetData(entity.GetID());
