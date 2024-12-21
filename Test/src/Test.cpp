@@ -27,11 +27,11 @@ namespace Hori
 		auto retrievedPosition = world.GetComponent<Position>(entt);
 		auto retrievedVelocity = world.GetComponent<Velocity>(entt);
 
-		EXPECT_EQ(retrievedPosition.x, 1.5f);
-		EXPECT_EQ(retrievedPosition.y, 0.5f);
+		EXPECT_EQ(retrievedPosition->x, 1.5f);
+		EXPECT_EQ(retrievedPosition->y, 0.5f);
 
-		EXPECT_EQ(retrievedVelocity.x, 1.0f);
-		EXPECT_EQ(retrievedVelocity.y, 1.0f);
+		EXPECT_EQ(retrievedVelocity->x, 1.0f);
+		EXPECT_EQ(retrievedVelocity->y, 1.0f);
 	}
 
 	TEST(HECSTest, CanGetEntitiesByComponents)
@@ -53,9 +53,9 @@ namespace Hori
 
 		world.AddSingletonComponent(Position(1.5f, 0.5f));
 
-		auto& retrievedComponent = world.GetSingletonComponent<Position>();
+		auto retrievedComponent = world.GetSingletonComponent<Position>();
 
-		EXPECT_EQ(retrievedComponent.x, 1.5f);
+		EXPECT_EQ(retrievedComponent->x, 1.5f);
 	}
 
 	TEST(HECSTest, RemovingEntities)

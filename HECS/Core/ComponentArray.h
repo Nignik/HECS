@@ -58,10 +58,13 @@ namespace Hori
 			--m_size;
 		}
 
-		T& GetData(int32_t entityID)
+		T* GetData(int32_t entityID)
 		{
-			assert(m_entityToIndex.find(entityID) != m_entityToIndex.end() && "Retrieving non-existent component.");
-			return m_components[m_entityToIndex[entityID]];
+			if (m_entityToIndex.find(entityID) == m_entityToIndex.end())
+			{
+				return nullptr;
+			}
+			return &m_components[m_entityToIndex[entityID]];
 		}
 
 		bool HasData(int32_t entityID)

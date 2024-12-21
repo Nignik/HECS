@@ -60,8 +60,9 @@ namespace Hori
 			GetComponentArray<T>()->InsertData(entity.GetID(), component);
 		}
 
+		// Returns pointer to the component if entity has it, otherwise returns nullptr
 		template<typename T>
-		T& GetComponent(Entity entity)
+		T* GetComponent(Entity entity)
 		{
 			return GetComponentArray<T>()->GetData(entity.GetID());
 		}
@@ -72,8 +73,10 @@ namespace Hori
 			GetInstance().AddComponent(m_singletonEntity.value(), component);
 		}
 
+
+		// Returns pointer to the signleton component if entity has it, otherwise returns nullptr
 		template<typename T>
-		T& GetSingletonComponent()
+		T* GetSingletonComponent()
 		{
 			return GetInstance().GetComponent<T>(m_singletonEntity.value());
 		}
