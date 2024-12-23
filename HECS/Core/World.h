@@ -81,11 +81,14 @@ namespace Hori
 			return GetInstance().GetComponent<T>(m_singletonEntity.value());
 		}
 
-		template<typename T>
-		bool HasComponent(int32_t entityID)
+		template<typename ... Components>
+		bool HasComponents(Entity entity)
 		{
-			auto arr = GetComponentArray<T>();
-			return arr->HasData(entityID);
+			if ((HasComponent<Components>(entity.m_id) && ...))
+			{
+				return true;
+			}
+			return false;
 		}
 
 		template<typename... Components>
@@ -135,6 +138,13 @@ namespace Hori
 				m_componentArrays[type] = std::make_shared<ComponentArray<T>>();
 			}
 			return static_cast<ComponentArray<T>*>(m_componentArrays[type].get());
+		}
+
+		template<typename T>
+		bool HasComponent(int32_t entityID)
+		{
+			auto arr = GetComponentArray<T>();
+			return arr->HasData(entityID);
 		}
 
 		int32_t m_nextEntityID = 0;
