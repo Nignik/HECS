@@ -10,6 +10,10 @@ namespace Hori
 	class Entity
 	{
 	public:
+		Entity()
+			: m_id(0)
+		{}
+
 		int32_t GetID() const { return m_id; }
 		bool operator<(const Entity& other) const
 		{

@@ -37,6 +37,13 @@ namespace Hori
 			return entity;
 		}
 
+		Entity CreatePrototypeEntity()
+		{
+			Entity entity(m_nextEntityID++);
+			m_protypeEntities.insert(entity.m_id);
+			return entity;
+		}
+
 		void RemoveEntity(Entity entity)
 		{
 			int32_t entityID = entity.m_id;
@@ -180,6 +187,7 @@ namespace Hori
 
 		int32_t m_nextEntityID = 1;
 		std::unordered_set<int32_t> m_entities;
+		std::unordered_set<int32_t> m_protypeEntities;
 		std::unordered_map<std::type_index, std::shared_ptr<IComponentArray>> m_componentArrays;
 		std::unordered_map<int32_t, std::unordered_set<std::type_index>> m_entityComponents;
 		std::vector<std::unique_ptr<System>> m_systems;
