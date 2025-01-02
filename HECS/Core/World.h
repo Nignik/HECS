@@ -55,12 +55,7 @@ namespace Hori
 			m_entities.erase(entityID);
 		}
 
-		template<typename T>
-		void AddComponent(Entity entity, T component)
-		{
-			GetComponentArray<T>()->InsertData(entity.m_id, component);
-			m_entityComponents[entity.m_id].insert(std::type_index(typeid(T)));
-		}
+		
 
 		// Returns pointer to the component if entity has it, otherwise returns nullptr
 		template<typename T>
@@ -83,24 +78,30 @@ namespace Hori
 			return GetInstance().GetComponent<T>(m_singletonEntity.value());
 		}
 
-		template<typename ... Components>
+		template<typename ... Ts>
 		bool HasComponents(Entity entity)
 		{
-			if ((HasComponent<Components>(entity.m_id) && ...))
+			if ((HasComponent<Ts>(entity.m_id) && ...))
 			{
 				return true;
 			}
 			return false;
 		}
 
-		template<typename... Components>
+		template<typename... Ts>
+		void AddComponents(Entity entity, Ts&&... components)
+		{
+			(AddComponent<std::decay_t<Ts>>(entity, std::forward<Ts>(components)), ...);
+		}
+
+		template<typename... Ts>
 		std::vector<Entity> GetEntitiesWithComponents()
 		{
 			std::vector<Entity> result;
 
 			for (const auto& entityID : m_entities)
 			{
-				if ((HasComponent<Components>(entityID) && ...))
+				if ((HasComponent<Ts>(entityID) && ...))
 				{
 					result.emplace_back(Entity(entityID));
 				}
@@ -168,6 +169,13 @@ namespace Hori
 		{
 			auto arr = GetComponentArray<T>();
 			return arr->HasData(entityID);
+		}
+
+		template<typename T>
+		void AddComponent(Entity entity, T component)
+		{
+			GetComponentArray<T>()->InsertData(entity.m_id, component);
+			m_entityComponents[entity.m_id].insert(std::type_index(typeid(T)));
 		}
 
 		int32_t m_nextEntityID = 1;

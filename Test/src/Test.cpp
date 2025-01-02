@@ -21,8 +21,8 @@ namespace Hori
 		World& world = World::GetInstance();
 
 		Entity entt = world.CreateEntity();
-		world.AddComponent(entt, Position(1.5f, 0.5f));
-		world.AddComponent(entt, Velocity(1.0f, 1.0f));
+		world.AddComponents(entt, Position(1.5f, 0.5f));
+		world.AddComponents(entt, Velocity(1.0f, 1.0f));
 
 		auto retrievedPosition = world.GetComponent<Position>(entt);
 		auto retrievedVelocity = world.GetComponent<Velocity>(entt);
@@ -39,8 +39,8 @@ namespace Hori
 		World& world = World::GetInstance();
 
 		Entity entt = world.CreateEntity();
-		world.AddComponent(entt, Position(1.5f, 0.5f));
-		world.AddComponent(entt, Velocity(1.0f, 1.0f));
+		world.AddComponents(entt, Position(1.5f, 0.5f));
+		world.AddComponents(entt, Velocity(1.0f, 1.0f));
 
 		auto retrievedEntities = world.GetEntitiesWithComponents<Position>();
 
@@ -63,7 +63,7 @@ namespace Hori
 		World& world = World::GetInstance();
 
 		auto entt = world.CreateEntity();
-		world.AddComponent(entt, Position(1.5f, 0.5f));
+		world.AddComponents(entt, Position(1.5f, 0.5f));
 
 		world.RemoveEntity(entt);
 
@@ -75,7 +75,7 @@ namespace Hori
 		World& world = World::GetInstance();
 
 		auto entt = world.CreateEntity();
-		world.AddComponent(entt, Position(1.5f, 0.5f));
+		world.AddComponents(entt, Position(1.5f, 0.5f));
 
 		auto clonedEntity = world.Clone(entt);
 
