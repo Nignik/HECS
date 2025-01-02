@@ -70,5 +70,17 @@ namespace Hori
 		EXPECT_EQ(0, 0);
 	}
 
+	TEST(EntityCloning, EntityClone)
+	{
+		World& world = World::GetInstance();
+
+		auto entt = world.CreateEntity();
+		world.AddComponent(entt, Position(1.5f, 0.5f));
+
+		auto clonedEntity = world.Clone(entt);
+
+		EXPECT_EQ(world.GetComponent<Position>(entt)->x, world.GetComponent<Position>(clonedEntity)->x);
+	}
+
 }
 

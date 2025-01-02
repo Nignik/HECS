@@ -33,13 +33,13 @@ namespace Hori
 		Entity CreateEntity()
 		{
 			Entity entity(m_nextEntityID++);
-			m_entities.insert(entity.GetID());
+			m_entities.insert(entity.m_id);
 			return entity;
 		}
 
 		void RemoveEntity(Entity entity)
 		{
-			int32_t entityID = entity.GetID();
+			int32_t entityID = entity.m_id;
 
 			if (m_entities.find(entityID) == m_entities.end())
 			{
@@ -51,20 +51,22 @@ namespace Hori
 				arr->EntityDestroyed(entityID);
 			}
 
+			m_entityComponents.erase(entityID);
 			m_entities.erase(entityID);
 		}
 
 		template<typename T>
 		void AddComponent(Entity entity, T component)
 		{
-			GetComponentArray<T>()->InsertData(entity.GetID(), component);
+			GetComponentArray<T>()->InsertData(entity.m_id, component);
+			m_entityComponents[entity.m_id].insert(std::type_index(typeid(T)));
 		}
 
 		// Returns pointer to the component if entity has it, otherwise returns nullptr
 		template<typename T>
 		T* GetComponent(Entity entity)
 		{
-			return GetComponentArray<T>()->GetData(entity.GetID());
+			return GetComponentArray<T>()->GetData(entity.m_id);
 		}
 
 		template<typename T>
@@ -125,6 +127,27 @@ namespace Hori
 			}
 		}
 
+		Entity Clone(Entity entity)
+		{
+			Entity clonedEntity = CreateEntity();
+
+			int32_t srcEntityID = entity.m_id;
+			int32_t dstEntityID = clonedEntity.m_id;
+
+			for (auto& componentType : m_entityComponents[entity.m_id])
+			{
+				auto it = m_componentArrays.find(componentType);
+				if (it == m_componentArrays.end())
+					continue;
+
+				it->second->CloneComponent(srcEntityID, dstEntityID);
+
+				m_entityComponents[dstEntityID].insert(componentType);
+			}
+
+			return clonedEntity;
+		}
+
 	private:
 		World() = default;
 		~World() = default;
@@ -147,9 +170,10 @@ namespace Hori
 			return arr->HasData(entityID);
 		}
 
-		int32_t m_nextEntityID = 0;
+		int32_t m_nextEntityID = 1;
 		std::unordered_set<int32_t> m_entities;
 		std::unordered_map<std::type_index, std::shared_ptr<IComponentArray>> m_componentArrays;
+		std::unordered_map<int32_t, std::unordered_set<std::type_index>> m_entityComponents;
 		std::vector<std::unique_ptr<System>> m_systems;
 
 		std::optional<Entity> m_singletonEntity;

@@ -12,6 +12,7 @@ namespace Hori
 		virtual ~IComponentArray() = default;
 
 		virtual void EntityDestroyed(int32_t entityID) = 0;
+		virtual void CloneComponent(int32_t srcEntityID, int32_t dstEntityID) = 0;
 	};
 
 
@@ -78,6 +79,20 @@ namespace Hori
 			{
 				RemoveData(entityID);
 			}
+		}
+
+		void CloneComponent(int32_t srcEntityID, int32_t dstEntityID) override
+		{
+			auto it = m_entityToIndex.find(srcEntityID);
+			if (it == m_entityToIndex.end())
+			{
+				return;
+			}
+
+			size_t srcIndex = it->second;
+			T componentCopy = m_components[srcIndex];
+
+			InsertData(dstEntityID, componentCopy);
 		}
 
 	private:
