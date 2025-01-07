@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <memory>
 #include <typeindex>
+#include <optional>
 #include <unordered_set>
 
 #include "ComponentArray.h"
@@ -48,18 +49,14 @@ namespace Hori
 		{
 			int32_t entityID = entity.m_id;
 
-			if (m_entities.find(entityID) == m_entities.end())
-			{
-				return;
-			}
-
+			// it's ok to just call the erases, if the entity doesnt exist nothing will happen
+			m_entities.erase(entityID);
+			m_protypeEntities.erase(entityID);
+			m_entityComponents.erase(entityID);
 			for (auto& [type, arr] : m_componentArrays)
 			{
 				arr->EntityDestroyed(entityID);
 			}
-
-			m_entityComponents.erase(entityID);
-			m_entities.erase(entityID);
 		}
 
 		
