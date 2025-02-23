@@ -1,6 +1,5 @@
-#include <Core/Entity.h>
-#include <Core/Component.h>
-#include <Core/World.h>
+#include <Entity.h>
+#include <World.h>
 
 #include <gtest/gtest.h>
 
@@ -16,9 +15,28 @@ namespace Hori
 		float x, y;
 	};
 
+	class Ecs
+	{
+	public:
+		Ecs(const Ecs&) = delete;
+		Ecs& operator=(const Ecs&) = delete;
+
+		static World& GetInstance()
+		{
+			static Ecs instance;
+			return instance.m_world;
+		}
+
+	private:
+		Ecs() = default;
+		~Ecs() = default;
+
+		World m_world{};
+	};
+
 	TEST(HECSTest, CanAddComponents)
 	{
-		World& world = World::GetInstance();
+		World& world = Ecs::GetInstance();
 
 		Entity entt = world.CreateEntity();
 		world.AddComponents(entt, Position(1.5f, 0.5f));
@@ -36,7 +54,7 @@ namespace Hori
 
 	TEST(HECSTest, CanGetEntitiesByComponents)
 	{
-		World& world = World::GetInstance();
+		World& world = Ecs::GetInstance();
 
 		Entity entt = world.CreateEntity();
 		world.AddComponents(entt, Position(1.5f, 0.5f));
@@ -49,7 +67,7 @@ namespace Hori
 
 	TEST(HECSTest, SingletonComponent)
 	{
-		World& world = World::GetInstance();
+		World& world = Ecs::GetInstance();
 
 		world.AddSingletonComponent(Position(1.5f, 0.5f));
 
@@ -60,7 +78,7 @@ namespace Hori
 
 	TEST(HECSTest, RemovingEntities)
 	{
-		World& world = World::GetInstance();
+		World& world = Ecs::GetInstance();
 
 		auto entt = world.CreateEntity();
 		world.AddComponents(entt, Position(1.5f, 0.5f));
@@ -72,7 +90,7 @@ namespace Hori
 
 	TEST(EntityCloning, EntityClone)
 	{
-		World& world = World::GetInstance();
+		World& world = Ecs::GetInstance();
 
 		auto entt = world.CreateEntity();
 		world.AddComponents(entt, Position(1.5f, 0.5f));

@@ -9,26 +9,17 @@
 #include <unordered_set>
 
 #include "ComponentArray.h"
-#include "Entity.h"
 #include "System.h"
-#include "Component.h"
+#include "Entity.h"
 
 namespace Hori
 {
 	class World
 	{
 	public:
-		World(const World&) = delete;
-		World& operator=(const World&) = delete;
-
-		static World& GetInstance()
+		World()
 		{
-			static World instance;
-			
-			if (!instance.m_singletonEntity.has_value())
-				instance.m_singletonEntity = instance.CreateEntity();
-
-			return instance;
+			m_singletonEntity = CreateEntity();
 		}
 
 		Entity CreateEntity()
@@ -37,11 +28,11 @@ namespace Hori
 			m_entities.insert(entity.m_id);
 			return entity;
 		}
-
+		
 		Entity CreatePrototypeEntity()
 		{
 			Entity entity(m_nextEntityID++);
-			m_protypeEntities.insert(entity.m_id);
+			m_prototypeEntities.insert(entity.m_id);
 			return entity;
 		}
 
@@ -51,45 +42,12 @@ namespace Hori
 
 			// it's ok to just call the erases, if the entity doesnt exist nothing will happen
 			m_entities.erase(entityID);
-			m_protypeEntities.erase(entityID);
+			m_prototypeEntities.erase(entityID);
 			m_entityComponents.erase(entityID);
 			for (auto& [type, arr] : m_componentArrays)
 			{
-				arr->EntityDestroyed(entityID);
+				arr->OnEntityDestroyed(entityID);
 			}
-		}
-
-		
-
-		// Returns pointer to the component if entity has it, otherwise returns nullptr
-		template<typename T>
-		T* GetComponent(Entity entity)
-		{
-			return GetComponentArray<T>()->GetData(entity.m_id);
-		}
-
-		template<typename T>
-		void AddSingletonComponent(T component)
-		{
-			GetInstance().AddComponent(m_singletonEntity.value(), component);
-		}
-
-
-		// Returns pointer to the signleton component if entity has it, otherwise returns nullptr
-		template<typename T>
-		T* GetSingletonComponent()
-		{
-			return GetInstance().GetComponent<T>(m_singletonEntity.value());
-		}
-
-		template<typename ... Ts>
-		bool HasComponents(Entity entity)
-		{
-			if ((HasComponent<Ts>(entity.m_id) && ...))
-			{
-				return true;
-			}
-			return false;
 		}
 
 		template<typename... Ts>
@@ -97,6 +55,23 @@ namespace Hori
 		{
 			(AddComponent<std::decay_t<Ts>>(entity, std::forward<Ts>(components)), ...);
 		}
+
+		template<typename T, typename... Args>
+		T& AddSystem(Args&&... args)
+		{
+			static_assert(std::is_base_of<System, T>::value, "T must inherit from System");
+			auto system = std::make_unique<T>(std::forward<Args>(args)...);
+			T& ref = *system;
+			m_systems.push_back(std::move(system));
+			return ref;
+		}
+
+		template<typename T>
+		void AddSingletonComponent(T component)
+		{
+			AddComponent(m_singletonEntity.value(), component);
+		}
+
 
 		template<typename... Ts>
 		std::vector<Entity> GetEntitiesWithComponents()
@@ -114,14 +89,18 @@ namespace Hori
 			return result;
 		}
 
-		template<typename T, typename... Args>
-		T& AddSystem(Args&&... args)
+		// Returns pointer to the component if entity has it, otherwise returns nullptr
+		template<typename T>
+		T* GetComponent(Entity entity)
 		{
-			static_assert(std::is_base_of<System, T>::value, "T must inherit from System");
-			auto system = std::make_unique<T>(std::forward<Args>(args)...);
-			T& ref = *system;
-			m_systems.push_back(std::move(system));
-			return ref;
+			return GetComponentArray<T>()->GetData(entity.m_id);
+		}
+
+		// Returns pointer to the signleton component if entity has it, otherwise returns nullptr
+		template<typename T>
+		T* GetSingletonComponent()
+		{
+			return GetComponent<T>(m_singletonEntity.value());
 		}
 
 		void UpdateSystems(float deltaTime)
@@ -153,17 +132,20 @@ namespace Hori
 			return clonedEntity;
 		}
 
-	private:
-		World() = default;
-		~World() = default;
+		template<typename ... Ts>
+		bool HasComponents(Entity entity)
+		{
+			return (HasComponent<Ts>(entity.m_id) && ...);
+		}
 
+	private:
 		template<typename T>
 		ComponentArray<T>* GetComponentArray()
 		{
 			std::type_index type = std::type_index(typeid(T));
 			if (m_componentArrays.find(type) == m_componentArrays.end())
 			{
-				m_componentArrays[type] = std::make_shared<ComponentArray<T>>();
+				m_componentArrays.emplace(type, std::make_unique<ComponentArray<T>>());
 			}
 			return static_cast<ComponentArray<T>*>(m_componentArrays[type].get());
 		}
@@ -182,13 +164,13 @@ namespace Hori
 			m_entityComponents[entity.m_id].insert(std::type_index(typeid(T)));
 		}
 
-		int32_t m_nextEntityID = 1;
-		std::unordered_set<int32_t> m_entities;
-		std::unordered_set<int32_t> m_protypeEntities;
-		std::unordered_map<std::type_index, std::shared_ptr<IComponentArray>> m_componentArrays;
-		std::unordered_map<int32_t, std::unordered_set<std::type_index>> m_entityComponents;
-		std::vector<std::unique_ptr<System>> m_systems;
+		std::uint32_t m_nextEntityID = 1;
+		std::unordered_set<std::uint32_t> m_entities{};
+		std::unordered_set<std::uint32_t> m_prototypeEntities{}; // prototype entities are meant to not be updated by systems
+		std::unordered_map<std::type_index, std::unique_ptr<IComponentArray>> m_componentArrays{};
+		std::unordered_map<std::uint32_t, std::unordered_set<std::type_index>> m_entityComponents{};
+		std::vector<std::unique_ptr<System>> m_systems{};
 
-		std::optional<Entity> m_singletonEntity;
+		std::optional<Entity> m_singletonEntity{};
 	};
 }

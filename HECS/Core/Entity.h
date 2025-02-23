@@ -1,9 +1,6 @@
 ﻿#pragma once
 
-#include <cstdint>
 #include <vector>
-
-#include "Component.h"
 
 namespace Hori
 {
@@ -14,7 +11,7 @@ namespace Hori
 			: m_id(0)
 		{}
 
-		int32_t GetID() const { return m_id; }
+		std::uint32_t GetID() const { return m_id; }
 		bool operator<(const Entity& other) const
 		{
 			return m_id < other.m_id;
@@ -27,8 +24,8 @@ namespace Hori
 	private:
 		friend class World;
 
-		Entity(int32_t id) : m_id(id) {}
-		int32_t m_id;
+		Entity(std::uint32_t id) : m_id(id) {}
+		std::uint32_t m_id;
 	};
 }
 
