@@ -19,7 +19,7 @@ namespace Hori
 	{
 	public:
 		// Returns true if insertion was successful and false otherwise
-		bool InsertData(std::uint32_t entityID, T component)
+		bool InsertData(std::uint32_t entityID, T&& component)
 		{
 			if (HasData(entityID))
 				return false;
@@ -30,11 +30,11 @@ namespace Hori
 			m_indexToEntity[newIndex] = entityID;
 			if (m_components.size() > newIndex)
 			{
-				m_components[newIndex] = component;
+				m_components[newIndex] = std::move(component);
 			}
 			else
 			{
-				m_components.push_back(component);
+				m_components.push_back(std::move(component));
 			}
 			m_size++;
 			return true;
@@ -73,6 +73,11 @@ namespace Hori
 			return &m_components[it->second];
 		}
 
+		T* GetComponents()
+		{
+			return m_components.data();
+		}
+
 		bool HasData(std::uint32_t entityID)
 		{
 			return m_entityToIndex.find(entityID) != m_entityToIndex.end();
@@ -98,7 +103,7 @@ namespace Hori
 			size_t srcIndex = it->second;
 			T componentCopy = m_components[srcIndex];
 
-			InsertData(dstEntityID, componentCopy);
+			InsertData(dstEntityID, std::move(componentCopy));
 			return true;
 		}
 

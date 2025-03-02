@@ -67,9 +67,9 @@ namespace Hori
 		}
 
 		template<typename T>
-		void AddSingletonComponent(T component)
+		void AddSingletonComponent(T&& component)
 		{
-			AddComponent(m_singletonEntity.value(), component);
+			AddComponent<std::decay_t<T>>(m_singletonEntity.value(), std::forward<T>(component));
 		}
 
 
@@ -87,6 +87,12 @@ namespace Hori
 			}
 
 			return result;
+		}
+
+		template<typename T>
+		T* GetComponents()
+		{
+			return GetComponentArray<T>()->GetComponents();
 		}
 
 		// Returns pointer to the component if entity has it, otherwise returns nullptr
@@ -158,10 +164,11 @@ namespace Hori
 		}
 
 		template<typename T>
-		void AddComponent(Entity entity, T component)
+		void AddComponent(Entity entity, T&& component)
 		{
-			GetComponentArray<T>()->InsertData(entity.m_id, component);
-			m_entityComponents[entity.m_id].insert(std::type_index(typeid(T)));
+			using DT = std::decay_t<T>;
+			GetComponentArray<DT>()->InsertData(entity.m_id, std::forward<T>(component));
+			m_entityComponents[entity.m_id].insert(std::type_index(typeid(DT)));
 		}
 
 		std::uint32_t m_nextEntityID = 1;
