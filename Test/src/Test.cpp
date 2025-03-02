@@ -60,7 +60,7 @@ namespace Hori
 		world.AddComponents(entt, Position(1.5f, 0.5f));
 		world.AddComponents(entt, Velocity(1.0f, 1.0f));
 
-		auto retrievedEntities = world.GetEntitiesWithComponents<Position>();
+		auto retrievedEntities = world.GetEntitiesWith<Position>();
 
 		EXPECT_EQ(retrievedEntities[1].GetID(), entt.GetID());
 	}
@@ -98,6 +98,24 @@ namespace Hori
 		auto clonedEntity = world.Clone(entt);
 
 		EXPECT_EQ(world.GetComponent<Position>(entt)->x, world.GetComponent<Position>(clonedEntity)->x);
+	}
+
+	TEST(EntityViewing, EntityViewing)
+	{
+		World& world = Ecs::GetInstance();
+
+		auto entt = world.CreateEntity();
+		world.AddComponents(entt, Position(1.5f, 0.5f));
+		entt = world.CreateEntity();
+		world.AddComponents(entt, Position(2.0f, 0.5f));
+		
+		std::vector<Position*> positions;
+		for (auto [entity, pos] : world.GetViewOfEntitiesWith<Position>())
+		{
+			positions.push_back(pos);
+		}
+
+		EXPECT_EQ(positions[0]->x, 1.5f);
 	}
 
 }

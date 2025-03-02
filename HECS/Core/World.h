@@ -11,6 +11,7 @@
 #include "ComponentArray.h"
 #include "System.h"
 #include "Entity.h"
+#include "EntityView.h"
 
 namespace Hori
 {
@@ -74,7 +75,7 @@ namespace Hori
 
 
 		template<typename... Ts>
-		std::vector<Entity> GetEntitiesWithComponents()
+		std::vector<Entity> GetEntitiesWith()
 		{
 			std::vector<Entity> result;
 
@@ -87,6 +88,22 @@ namespace Hori
 			}
 
 			return result;
+		}
+
+		template<typename... Components>
+		EntityView<Components...> GetViewOfEntitiesWith()
+		{
+			EntityView<Components...> view;
+
+			auto entities = GetEntitiesWith<Components...>();
+			for (auto e : entities)
+			{
+				auto comps = std::make_tuple(GetComponent<Components>(e)...);
+				auto entityAndComps = std::tuple_cat(std::make_tuple(e), std::make_tuple(GetComponent<Components>(e))...);
+				view.data.push_back(entityAndComps);
+			}
+
+			return view;
 		}
 
 		template<typename T>
