@@ -4,28 +4,21 @@
 
 namespace Hori
 {
-	class Entity
+	// Entity with id 0 is the default, and treated as invalid
+	struct Entity
 	{
 	public:
-		Entity()
-			: m_id(0)
-		{}
-
-		std::uint32_t GetID() const { return m_id; }
+		[[nodiscard]] bool Valid() const { return id != 0; }
 		bool operator<(const Entity& other) const
 		{
-			return m_id < other.m_id;
+			return id < other.id;
 		}
 		bool operator==(const Entity& other) const
 		{
-			return m_id == other.m_id;
+			return id == other.id;
 		}
 
-	private:
-		friend class World;
-
-		Entity(std::uint32_t id) : m_id(id) {}
-		std::uint32_t m_id;
+		uint32_t id = 0;
 	};
 }
 
@@ -36,7 +29,7 @@ namespace std
 	{
 		std::size_t operator()(const Hori::Entity& entity) const noexcept
 		{
-			return std::hash<int32_t>()(entity.GetID());
+			return std::hash<uint32_t>()(entity.id);
 		}
 	};
 }
