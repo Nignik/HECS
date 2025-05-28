@@ -36,7 +36,7 @@ namespace Hori
 
 		[[nodiscard]] bool HasData(const uint32_t entityId) const
 		{
-			return entityId >= m_size;
+			return entityId < m_entityToIndex.size() && m_entityToIndex[entityId] < m_size;
 		}
 		
 		// Returns true if insertion was successful and false otherwise
@@ -45,8 +45,15 @@ namespace Hori
 			if (HasData(entityID))
 				return false;
 
-			// Insert new component at the end
+			// Grow the vector
 			size_t newIndex = m_size;
+			if (entityID >= m_entityToIndex.size())
+				m_entityToIndex.resize(entityID + 1, std::numeric_limits<size_t>::max());
+
+			if (newIndex >= m_indexToEntity.size())
+				m_indexToEntity.resize(newIndex + 1);
+
+			// Insert new component at the end
 			m_entityToIndex[entityID] = newIndex;
 			m_indexToEntity[newIndex] = entityID;
 			if (m_components.size() > newIndex)

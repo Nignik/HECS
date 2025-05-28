@@ -68,9 +68,8 @@ namespace Hori
 		T& AddSystem(Args&&... args)
 		{
 			static_assert(std::is_base_of_v<System, T>, "T must inherit from System");
-			auto* ptr = new T(std::forward<Args>(args)...);
-			m_systems.emplace_back(std::unique_ptr<System>(ptr));
-			return *ptr;       
+			m_systems.emplace_back( new T(std::forward<Args>(args)...) );
+			return *static_cast<T*>(m_systems.back().get());
 		}
 
 		template<typename T>
