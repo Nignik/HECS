@@ -98,32 +98,23 @@ namespace Hori
 			}
 		}
 
-		template<typename... Cs, typename F>
+		template<typename Driver, typename... Rest, typename F>
 		void Each(F&& f)
 		{
-			auto&& fn = std::forward<F>(f);
-
-			using Driver = std::tuple_element_t<0, std::tuple<Cs...>>;
 			auto& driverArr = GetComponentArray<Driver>();
 
-			const std::size_t count = driverArr.Size();
-			const auto* entities = driverArr.Entities();
-			Driver* comps0 = driverArr.Components();
+			const std::size_t count     = driverArr.Size();
+			const auto*       entities  = driverArr.Entities();
+			Driver*           comps0    = driverArr.Components();
 
-			for (std::size_t i = 0; i < count; i++)
+			for (std::size_t i = 0; i < count; ++i)
 			{
 				Entity e{ entities[i] };
 
-				if constexpr (sizeof...(Cs) == 1)
-				{
-					fn(e, comps0[i]);
-				}
-				else
-				{
-					if (!(HasComponent<Cs>(e) && ...)) continue;
+				if (!(HasComponent<Rest>(e) && ...))
+					continue;
 
-					fn(comps0[i], *GetComponent<Cs>(e)...);
-				}
+				f(e, comps0[i], *GetComponent<Rest>(e)...);
 			}
 		}
 
@@ -169,8 +160,7 @@ namespace Hori
 		template<typename T>
 		bool HasComponent(const Entity entity)
 		{
-			auto arr = GetComponentArray<T>();
-			return arr->HasData(entity.id);
+			return GetComponentArray<T>().HasData(entity.id);
 		}
 		
 		std::uint32_t m_nextEntityId = 1;

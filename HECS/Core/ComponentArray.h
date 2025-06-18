@@ -104,7 +104,7 @@ namespace Hori
 		// Returns nullptr if there is no such entity
 		T* GetData(const uint32_t entityId)
 		{
-			if (entityId >= m_size)
+			if (entityId >= m_entityToIndex.size())
 				return nullptr;
 
 			return &m_components[m_entityToIndex[entityId]];
