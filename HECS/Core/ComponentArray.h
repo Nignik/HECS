@@ -11,7 +11,7 @@ namespace Hori
 	public:
 		virtual ~IComponentArray() = default;
 
-		virtual void OnEntityDestroyed(const uint32_t entityID) = 0;
+		virtual bool RemoveData(const uint32_t entityID) = 0;
 		virtual bool CloneComponent(const uint32_t srcEntityID, const uint32_t dstEntityID) = 0;
 	};
 
@@ -82,21 +82,23 @@ namespace Hori
 		}
 
 		// Returns true there was an entity to remove and false otherwise
-		bool RemoveData(const uint32_t entityID)
+		bool RemoveData(const uint32_t entityID) override
 		{
 			if (!HasData(entityID))
 				return false;
 
-			// Swap and pop to maintain a packed array
-			size_t indexOfRemovedEntity = m_entityToIndex[entityID];
-			size_t indexOfLastElement = m_size - 1;
-			m_components[indexOfRemovedEntity] = m_components[indexOfLastElement];
+			const size_t idxRemoved = m_entityToIndex[entityID];
+			const size_t idxLast    = m_size - 1;
 
-			// Update mappings
-			std::uint32_t entityOfLastElement = m_indexToEntity[indexOfLastElement];
-			m_entityToIndex[entityOfLastElement] = indexOfRemovedEntity;
-			m_indexToEntity[indexOfRemovedEntity] = entityOfLastElement;
+			if (idxRemoved != idxLast)
+			{
+				m_components[idxRemoved]  = std::move(m_components[idxLast]);
+				uint32_t entLast          = m_indexToEntity[idxLast];
+				m_entityToIndex[entLast]  = idxRemoved;
+				m_indexToEntity[idxRemoved] = entLast;
+			}
 
+			m_entityToIndex[entityID] = std::numeric_limits<size_t>::max();
 			m_size--;
 			return true;
 		}
@@ -120,15 +122,6 @@ namespace Hori
 			return m_indexToEntity.data();
 		}
 
-		
-		void OnEntityDestroyed(const uint32_t entityID) override
-		{
-			if (entityID < m_size)
-			{
-				RemoveData(entityID);
-			}
-		}
-		
 	private:
 		std::vector<T> m_components{};
 		std::vector<size_t> m_entityToIndex{}; // Used for accessing components given entity id

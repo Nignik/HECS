@@ -23,6 +23,35 @@ namespace Hori
 			m_singletonEntity = CreateEntity();
 		}
 
+		void World::Destroy()
+		{
+			std::vector<std::uint32_t> ids;
+			ids.reserve(m_entities.size() + m_prototypeEntities.size());
+			ids.insert(ids.end(), m_entities.begin(),   m_entities.end());
+			ids.insert(ids.end(), m_prototypeEntities.begin(),
+									m_prototypeEntities.end());
+
+			if (m_singletonEntity &&
+				!m_entities.contains(m_singletonEntity->id) &&
+				!m_prototypeEntities.contains(m_singletonEntity->id))
+			{
+				ids.push_back(m_singletonEntity->id);
+			}
+
+			for (std::uint32_t id : ids)
+				RemoveEntity(Entity{id});
+
+			m_componentArrays.clear();
+			m_systems.clear();
+
+			m_entities.clear();
+			m_prototypeEntities.clear();
+			m_entityComponents.clear();
+
+			m_singletonEntity.reset();
+			m_nextEntityId = 1;
+		}
+
 		Entity CreateEntity()
 		{
 			const Entity entity{m_nextEntityId++};
@@ -86,7 +115,7 @@ namespace Hori
 			m_entityComponents.erase(entity.id);
 			for (const auto& arr : m_componentArrays | std::views::values)
 			{
-				arr->OnEntityDestroyed(entity.id);
+				arr->RemoveData(entity.id);
 			}
 		}
 
