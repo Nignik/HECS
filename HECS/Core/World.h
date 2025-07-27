@@ -174,7 +174,7 @@ namespace Hori
 		template<typename ... Ts>
 		bool HasComponents(const Entity entity)
 		{
-			return (HasComponent<Ts>(entity.id) && ...);
+			return (HasComponent<Ts>(entity) && ...);
 		}
 
 	private:
