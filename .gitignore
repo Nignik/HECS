@@ -1,3 +1,5 @@
 .vs/
-CmakePresets.json
+.idea/
+build/
+cmake-build-debug/
 out/
