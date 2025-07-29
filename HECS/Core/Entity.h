@@ -8,11 +8,16 @@ namespace Hori
 	struct Entity
 	{
 	public:
-		[[nodiscard]] bool Valid() const { return id != 0; }
+		[[nodiscard]] bool Valid() const
+		{
+			return id != 0;
+		}
+
 		bool operator<(const Entity& other) const
 		{
 			return id < other.id;
 		}
+
 		bool operator==(const Entity& other) const
 		{
 			return id == other.id;

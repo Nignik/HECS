@@ -23,13 +23,12 @@ namespace Hori
 			m_singletonEntity = CreateEntity();
 		}
 
-		void World::Destroy()
+		void Destroy()
 		{
 			std::vector<std::uint32_t> ids;
 			ids.reserve(m_entities.size() + m_prototypeEntities.size());
 			ids.insert(ids.end(), m_entities.begin(),   m_entities.end());
-			ids.insert(ids.end(), m_prototypeEntities.begin(),
-									m_prototypeEntities.end());
+			ids.insert(ids.end(), m_prototypeEntities.begin(), m_prototypeEntities.end());
 
 			if (m_singletonEntity &&
 				!m_entities.contains(m_singletonEntity->id) &&

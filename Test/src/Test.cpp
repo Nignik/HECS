@@ -14,29 +14,9 @@ namespace Hori
 		float x, y;
 	};
 
-	class Ecs
-	{
-	public:
-		Ecs(const Ecs&) = delete;
-		Ecs& operator=(const Ecs&) = delete;
-
-		static World& GetInstance()
-		{
-			static Ecs instance;
-			return instance.m_world;
-		}
-
-	private:
-		Ecs() = default;
-		~Ecs() = default;
-
-		World m_world{};
-	};
-
-	
 	TEST(Systems, ForEach)
 	{
-		Hori::World world;
+		World world;
 
 		constexpr int N = 10;
 		std::vector<Entity> entities;
@@ -47,15 +27,21 @@ namespace Hori
 			entities.push_back(e);
 		}
 
-		world.Each<Position>([](Hori::Entity, Position& p)
-		{
-				p.x = 0;
+		world.Each<Position>([](Entity, Position& p) {
+				p.x = 3.f;
 		});
 
 		auto pos = world.GetComponent<Position>(entities[0]);
-		EXPECT_EQ(pos->x, 0.f);
+		EXPECT_EQ(pos->x, 3.f);
 	}
 
+	TEST(Components, SingletonComponent)
+	{
+		World world;
+		world.AddSingletonComponent(Position{1.2f, 0.3f});
 
+		auto pos = world.GetSingletonComponent<Position>();
+		EXPECT_EQ(pos->x, 1.2f);
+	}
 }
 
