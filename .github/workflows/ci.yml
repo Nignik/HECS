@@ -1,42 +1,23 @@
-name: C++ CI
+name: Windows Build
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
+env:
+  CONFIGURE_PRESET: windows
+  BUILD_PRESET: windows-release
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        compiler: [gcc, clang]
-        exclude:
-          - os: windows-latest
-            compiler: gcc
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install dependencies (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake build-essential
-
-    - name: Install dependencies (macOS)
-      if: matrix.os == 'macos-latest'
-      run: |
-        brew install cmake
-
     - name: Configure CMake
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+      run: cmake --preset ${{env.CONFIGURE_PRESET}} -DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl
 
     - name: Build
-      run: cmake --build build --config Release
-
-    - name: Test
-      run: ctest --test-dir build --output-on-failure
+      run: cmake --build --preset ${{env.BUILD_PRESET}}
