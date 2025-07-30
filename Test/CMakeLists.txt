@@ -10,8 +10,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 enable_testing()
 
-add_executable(ComponentTest ${SOURCES})
-target_link_libraries(ComponentTest PRIVATE HECS GTest::gtest GTest::gtest_main)
-add_test(ComponentTest ComponentTest)
+add_executable(EcsTest ${SOURCES})
+target_link_libraries(EcsTest PRIVATE HECS GTest::gtest GTest::gtest_main)
+add_test(EcsTest EcsTest)
 
 
