@@ -8,5 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_testing()
 
 add_subdirectory("HECS")
+
+add_library(hori::hecs ALIAS HECS)
 add_subdirectory("Test")
 #add_subdirectory("Benchmark")

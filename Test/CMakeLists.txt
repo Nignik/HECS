@@ -10,9 +10,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 enable_testing()
 
-find_package(HECS REQUIRED)
 add_executable(ComponentTest ${SOURCES})
-target_link_libraries(ComponentTest PRIVATE HECS::HECS GTest::gtest GTest::gtest_main)
+target_link_libraries(ComponentTest PRIVATE HECS GTest::gtest GTest::gtest_main)
 add_test(ComponentTest ComponentTest)
 
 
