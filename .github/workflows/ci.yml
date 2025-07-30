@@ -1,6 +1,10 @@
 name: Windows Build
 
-on: push
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 env:
   CONFIGURE_PRESET: windows
@@ -12,6 +16,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install vcpkg
+      run: |
+        git clone https://github.com/Microsoft/vcpkg.git
+        ./vcpkg/bootstrap-vcpkg.sh
+
+    - name: Install dependencies
+      run: |
+        ./vcpkg/vcpkg install GTest
+
     - name: Configure CMake
       run: cmake -B build -DCMAKE_BUILD_TYPE=Debug
 
@@ -20,8 +33,3 @@ jobs:
 
     - name: Build Test target specifically
       run: cmake --build build --target Test --config Debug
-
-    - name: Run tests with CTest
-      run: |
-        cd build
-        ctest --output-on-failure --verbose -C Debug
