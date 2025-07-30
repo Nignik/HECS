@@ -42,6 +42,7 @@ namespace Hori
 
 		auto pos = world.GetSingletonComponent<Position>();
 		EXPECT_EQ(pos->x, 1.2f);
+		EXPECT_EQ(pos->y, 0.3f);
 	}
 }
 
