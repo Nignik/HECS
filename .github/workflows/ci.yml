@@ -21,3 +21,6 @@ jobs:
 
     - name: Build project
       run: cmake --build build --preset debug
+
+    - name: Run tests
+      run: ctest --preset debug --output-on-failure
