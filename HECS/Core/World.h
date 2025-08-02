@@ -92,6 +92,12 @@ namespace Hori
 			(AddComponent<std::decay_t<Ts>>(entity, std::forward<Ts>(components)), ...);
 		}
 
+		template<typename... Ts>
+		void RemoveComponents(const Entity entity)
+		{
+			(RemoveComponent<std::decay_t<Ts>>(entity), ...);
+		}
+
 		template<typename T, typename... Args>
 		T& AddSystem(Args&&... args)
 		{
@@ -183,6 +189,13 @@ namespace Hori
 			using DT = std::decay_t<T>;
 			GetComponentArray<DT>().InsertData(entity.id, std::forward<T>(component));
 			m_entityComponents[entity.id].insert(std::type_index(typeid(DT)));
+		}
+
+		template<typename T>
+		void RemoveComponent(Entity entity)
+		{
+			using DT = std::decay_t<T>;
+			GetComponentArray<DT>().RemoveData(entity.id);
 		}
 
 		template<typename T>

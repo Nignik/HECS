@@ -44,5 +44,14 @@ namespace Hori
 		EXPECT_EQ(pos->x, 1.2f);
 		EXPECT_EQ(pos->y, 0.3f);
 	}
+
+	TEST(Components, RemoveComponent)
+	{
+		World world;
+		Entity e;
+		world.AddComponents(e, Position{1.f, 1.f});
+		world.RemoveComponents<Position>(e);
+		EXPECT_EQ(world.HasComponents<Position>(e), false);
+	}
 }
 
