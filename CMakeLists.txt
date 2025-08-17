@@ -5,10 +5,11 @@ project ("HECS")
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include(dependencies.cmake)
+
 enable_testing()
 
 add_subdirectory("HECS")
-
-add_library(hori::hecs ALIAS HECS)
+add_library(hecs::hecs ALIAS HECS)
 add_subdirectory("Test")
 #add_subdirectory("Benchmark")

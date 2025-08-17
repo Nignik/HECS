@@ -43,8 +43,12 @@ namespace Hori
 		// Returns true if insertion was successful and false otherwise
 		bool InsertData(const uint32_t entityID, T&& component)
 		{
+			// Entity already has this component type
 			if (HasData(entityID))
-				return false;
+			{
+				size_t index = m_entityToIndex[entityID];
+				m_components[index] = std::move(component);
+			}
 
 			// Grow the vector
 			size_t newIndex = m_size;
