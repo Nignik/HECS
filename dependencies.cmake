@@ -12,5 +12,10 @@ FetchContent_Declare (
         GIT_REPOSITORY https://github.com/google/benchmark.git
         GIT_TAG v1.9.4
 )
-
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+        glm
+        GIT_REPOSITORY https://github.com/g-truc/glm.git
+        GIT_TAG 1.0.1
+)

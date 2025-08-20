@@ -35,6 +35,27 @@ namespace Hori
 		EXPECT_EQ(pos->x, 3.f);
 	}
 
+	TEST(Systems, ParallelForEach)
+	{
+		World world;
+
+		constexpr int N = 10;
+		std::vector<Entity> entities;
+		for (int i = 0; i < N; ++i)
+		{
+			auto e = world.CreateEntity();
+			world.AddComponents(e, Position{.x = 2, .y = 1});
+			entities.push_back(e);
+		}
+
+		world.ParallelEach<Position>([](Entity, Position& p) {
+				p.x = 3.f;
+		});
+
+		auto pos = world.GetComponent<Position>(entities[0]);
+		EXPECT_EQ(pos->x, 3.f);
+	}
+
 	TEST(Components, SingletonComponent)
 	{
 		World world;

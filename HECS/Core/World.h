@@ -1,9 +1,12 @@
 #pragma once
 
+#include <algorithm>
+#include <execution>
 #include <vector>
 #include <unordered_map>
 #include <type_traits>
 #include <memory>
+#include <numeric>
 #include <typeindex>
 #include <optional>
 #include <ranges>
@@ -12,6 +15,8 @@
 #include "ComponentArray.h"
 #include "System.h"
 #include "Entity.h"
+
+// TODO: Change to construct components from args
 
 namespace Hori
 {
@@ -150,6 +155,25 @@ namespace Hori
 
 				f(e, comps0[i], *GetComponent<Rest>(e)...);
 			}
+		}
+
+		template<typename Driver, typename... Rest, typename F>
+		void ParallelEach(F&& f)
+		{
+			auto& driverArr = GetComponentArray<Driver>();
+			const std::size_t count = driverArr.Size();
+			const auto* entities = driverArr.Entities();
+			Driver* comps0 = driverArr.Components();
+
+			std::vector<std::size_t> indices(count);
+			std::iota(indices.begin(), indices.end(), 0);
+
+			std::for_each(std::execution::par_unseq, indices.begin(), indices.end(), [&](std::size_t i) {
+				Entity e{ entities[i] };
+				if (!(HasComponent<Rest>(e) && ...))
+					return;
+				f(e, comps0[i], *GetComponent<Rest>(e)...);
+			});
 		}
 
 		template<typename T>
