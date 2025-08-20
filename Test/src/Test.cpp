@@ -44,16 +44,19 @@ namespace Hori
 		for (int i = 0; i < N; ++i)
 		{
 			auto e = world.CreateEntity();
-			world.AddComponents(e, Position{.x = 2, .y = 1});
+			world.AddComponents(e, Position{.x = 2, .y = 1}, Velocity{.x = 4, .y = 5});
 			entities.push_back(e);
 		}
 
-		world.ParallelEach<Position>([](Entity, Position& p) {
+		world.ParallelEach<Position, Velocity>([](Entity, Position& p, Velocity& v) {
 				p.x = 3.f;
+				v.x = 10.f;
 		});
 
 		auto pos = world.GetComponent<Position>(entities[0]);
+		auto vel = world.GetComponent<Velocity>(entities[0]);
 		EXPECT_EQ(pos->x, 3.f);
+		EXPECT_EQ(vel->x, 10.f);
 	}
 
 	TEST(Components, SingletonComponent)

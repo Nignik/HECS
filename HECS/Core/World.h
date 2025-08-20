@@ -164,15 +164,16 @@ namespace Hori
 			const std::size_t count = driverArr.Size();
 			const auto* entities = driverArr.Entities();
 			Driver* comps0 = driverArr.Components();
+			World* world = this;
 
 			std::vector<std::size_t> indices(count);
 			std::iota(indices.begin(), indices.end(), 0);
 
-			std::for_each(std::execution::par_unseq, indices.begin(), indices.end(), [&](std::size_t i) {
+			std::for_each(std::execution::par_unseq, indices.begin(), indices.end(), [world, &entities, &f, &comps0](std::size_t i) mutable {
 				Entity e{ entities[i] };
-				if (!(HasComponent<Rest>(e) && ...))
+				if (!(world->HasComponent<Rest>(e) && ...))
 					return;
-				f(e, comps0[i], *GetComponent<Rest>(e)...);
+				f(e, comps0[i], *world->GetComponent<Rest>(e)...);
 			});
 		}
 
