@@ -35,9 +35,7 @@ namespace Hori
 			ids.insert(ids.end(), m_entities.begin(),   m_entities.end());
 			ids.insert(ids.end(), m_prototypeEntities.begin(), m_prototypeEntities.end());
 
-			if (m_singletonEntity &&
-				!m_entities.contains(m_singletonEntity->id) &&
-				!m_prototypeEntities.contains(m_singletonEntity->id))
+			if (m_singletonEntity && !m_entities.contains(m_singletonEntity->id) && !m_prototypeEntities.contains(m_singletonEntity->id))
 			{
 				ids.push_back(m_singletonEntity->id);
 			}

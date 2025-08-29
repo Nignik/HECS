@@ -1,4 +1,4 @@
-#include "../../HECS/Core/World.h"
+#include "HECS/Core/World.h"
 
 #include <gtest/gtest.h>
 
@@ -39,7 +39,7 @@ namespace Hori
 	{
 		World world;
 
-		constexpr int N = 10;
+		constexpr int N = 1000;
 		std::vector<Entity> entities;
 		for (int i = 0; i < N; ++i)
 		{
@@ -56,7 +56,11 @@ namespace Hori
 		auto pos = world.GetComponent<Position>(entities[0]);
 		auto vel = world.GetComponent<Velocity>(entities[0]);
 		EXPECT_EQ(pos->x, 3.f);
-		EXPECT_EQ(vel->x, 10.f);
+
+		auto& velocities = world.GetComponentArray<Velocity>();
+		world.Each<Velocity>([](Hori::Entity, Velocity& vel) {
+			EXPECT_EQ(vel.x, 10.f);
+		});
 	}
 
 	TEST(Components, SingletonComponent)
@@ -76,6 +80,28 @@ namespace Hori
 		world.AddComponents(e, Position{1.f, 1.f});
 		world.RemoveComponents<Position>(e);
 		EXPECT_EQ(world.HasComponents<Position>(e), false);
+	}
+
+	TEST(Components, GetComponentArray)
+	{
+		/*
+		World world;
+		constexpr int N = 100;
+		for (int i = 0; i < N; i++)
+		{
+			world.AddComponents(world.CreateEntity(), Position{10.f, 10.f});
+		}
+
+		world.Each<Position>([&](Hori::Entity e, Position& pos) {
+			if (world.GetComponentArray<Position>().Size() > N/2)
+			{
+
+			}
+		});
+		world.AddComponents(e, Position{1.f, 1.f});
+		world.RemoveComponents<Position>(e);
+		EXPECT_EQ(world.HasComponents<Position>(e), false);
+		*/
 	}
 }
 

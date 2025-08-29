@@ -9,7 +9,17 @@ include(dependencies.cmake)
 
 enable_testing()
 
-add_subdirectory("HECS")
-add_library(hecs::hecs ALIAS HECS)
+add_subdirectory("include/HECS")
 add_subdirectory("Test")
 add_subdirectory("Benchmark")
+
+option(HECS_BUILD_TESTS         "If tests are built."       OFF)
+option(HECS_BUILD_BENCHMARKS    "If benchmarks are built."  OFF)
+
+if(HECS_BUILD_TESTS)
+  add_subdirectory("test")
+endif()
+
+if(HECS_BUILD_BENCHMARKS)
+  add_subdirectory("benchmark")
+endif()

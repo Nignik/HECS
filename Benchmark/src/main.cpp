@@ -1,4 +1,4 @@
-#include "../../HECS/Core/World.h"
+#include "HECS/Core/World.h"
 #include <vector>
 #include <benchmark/benchmark.h>
 #include "glm/glm.hpp"
