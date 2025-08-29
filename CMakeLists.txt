@@ -9,7 +9,7 @@ include(dependencies.cmake)
 
 enable_testing()
 
-add_subdirectory("include/HECS")
+add_subdirectory("include")
 add_subdirectory("Test")
 add_subdirectory("Benchmark")
 
