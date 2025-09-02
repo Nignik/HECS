@@ -48,6 +48,7 @@ namespace Hori
 			{
 				size_t index = m_entityToIndex[entityID];
 				m_components[index] = std::move(component);
+			    return true;
 			}
 
 			// Grow the vector
